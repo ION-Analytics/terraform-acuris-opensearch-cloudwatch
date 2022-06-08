@@ -63,7 +63,7 @@ resource "aws_cloudwatch_metric_alarm" "free_storage_space" {
   statistic           = "Minimum"
   metric_name         = "FreeStorageSpace"
   comparison_operator = "LessThanOrEqualToThreshold"
-  threshold           = 20480
+  threshold           = var.free_storage_space_threshold 
   period              = 60
   evaluation_periods  = 1
   ok_actions          = [
@@ -119,8 +119,8 @@ resource "aws_cloudwatch_metric_alarm" "automated_snapshot_failure" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
-  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} CPUUtilization >= 80"
-  alarm_description = "Alert when CPUUtilization >=80, 3 time within 15 minutes"
+  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} CPUUtilization >= ${var.cpu_utilization_threshold}"
+  alarm_description = "Alert when CPUUtilization >=${var.cpu_utilization_threshold}, ${var.cpu_utilization_evaluation_periods} time within ${var.cpu_utilization_period} seconds"
   namespace         = "AWS/ES"
   dimensions        = {
     ClientId   = data.aws_caller_identity.current.account_id
@@ -129,9 +129,9 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
   statistic           = "Maximum"
   metric_name         = "CPUUtilization"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = 80
-  period              = 900
-  evaluation_periods  = 3
+  threshold           = var.cpu_utilization_threshold
+  period              = var.cpu_utilization_period
+  evaluation_periods  = var.cpu_utilization_evaluation_periods
   ok_actions          = [
     aws_sns_topic.alarms.arn
   ]
@@ -141,8 +141,8 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "jvm_memory_pressure" {
-  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} JVMMemoryPressure >= 80"
-  alarm_description = "Alert when JVMMemoryPressure >= 80, 3 time within 5 minutes"
+  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} JVMMemoryPressure >= ${var.jvm_memory_pressure_threshold}"
+  alarm_description = "Alert when JVMMemoryPressure >= ${var.jvm_memory_pressure_threshold}, ${var.jvm_memory_pressure_evaluation_periods} time within ${var.jvm_memory_pressure_period/60} minutes"
   namespace         = "AWS/ES"
   dimensions        = {
     ClientId   = data.aws_caller_identity.current.account_id
@@ -151,9 +151,9 @@ resource "aws_cloudwatch_metric_alarm" "jvm_memory_pressure" {
   statistic           = "Maximum"
   metric_name         = "JVMMemoryPressure"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = 80
-  period              = 300
-  evaluation_periods  = 3
+  threshold           = var.jvm_memory_pressure_threshold 
+  period              = var.jvm_memory_pressure_period
+  evaluation_periods  = var.jvm_memory_pressure_evaluation_periods
   ok_actions          = [
     aws_sns_topic.alarms.arn
   ]
@@ -163,8 +163,8 @@ resource "aws_cloudwatch_metric_alarm" "jvm_memory_pressure" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "master_cpu_utilization" {
-  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} MasterCPUUtilization >= 50"
-  alarm_description = "Alert when MasterCPUUtilization >= 50, 3 time within 15 minutes"
+  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} MasterCPUUtilization >= ${var.master_cpu_utilization_threshold}"
+  alarm_description = "Alert when MasterCPUUtilization >= ${var.master_cpu_utilization_threshold}, ${var.master_cpu_utilization_evaluation_periods} time within ${var.master_cpu_utilization_period/60} minutes"
   namespace         = "AWS/ES"
   dimensions        = {
     ClientId   = data.aws_caller_identity.current.account_id
@@ -173,9 +173,9 @@ resource "aws_cloudwatch_metric_alarm" "master_cpu_utilization" {
   statistic           = "Maximum"
   metric_name         = "MasterCPUUtilization"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = 50
-  period              = 900
-  evaluation_periods  = 3
+  threshold           = var.master_cpu_utilization_threshold
+  period              = var.master_cpu_utilization_period
+  evaluation_periods  = var.master_cpu_utilization_evaluation_periods
   ok_actions          = [
     aws_sns_topic.alarms.arn
   ]
@@ -186,7 +186,7 @@ resource "aws_cloudwatch_metric_alarm" "master_cpu_utilization" {
 
 resource "aws_cloudwatch_metric_alarm" "master_jvm_memory_pressure" {
   alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} MasterJVMMemoryPressure >= 80"
-  alarm_description = "Alert when MasterJVMMemoryPressure >= 80, 1 time within 15 minutes"
+  alarm_description = "Alert when MasterJVMMemoryPressure >= ${var.master_jvm_memory_pressure_threshold}, ${var.master_jvm_memory_pressure_evaluation_periods} time within ${var.master_jvm_memory_pressure_period/60} minutes"
   namespace         = "AWS/ES"
   dimensions        = {
     ClientId   = data.aws_caller_identity.current.account_id
@@ -195,9 +195,9 @@ resource "aws_cloudwatch_metric_alarm" "master_jvm_memory_pressure" {
   statistic           = "Maximum"
   metric_name         = "MasterJVMMemoryPressure"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = 80
-  period              = 900
-  evaluation_periods  = 1
+  threshold           = var.master_jvm_memory_pressure_threshold
+  period              = var.master_jvm_memory_pressure_period
+  evaluation_periods  = var.master_jvm_memory_pressure_evaluation_periods
   ok_actions          = [
     aws_sns_topic.alarms.arn
   ]
@@ -207,8 +207,8 @@ resource "aws_cloudwatch_metric_alarm" "master_jvm_memory_pressure" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "shards_active" {
-  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} ShardsActive >= 30000"
-  alarm_description = "Alert when ShardsActive >= 30000, 1 time within 1 minute"
+  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} ShardsActive >= ${var.shards_active_threshold}"
+  alarm_description = "Alert when ShardsActive >= ${var.shards_active_threshold}, ${var.shards_active_evaluation_periods} time within ${var.shards_active_period/60} minute"
   namespace         = "AWS/ES"
   dimensions        = {
     ClientId   = data.aws_caller_identity.current.account_id
@@ -217,12 +217,12 @@ resource "aws_cloudwatch_metric_alarm" "shards_active" {
   statistic           = "Maximum"
   metric_name         = "Shards.active"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = 30000
-  period              = 60
-  evaluation_periods  = 1
+  threshold           = var.shards_active_threshold
+  period              = var.shards_active_period
+  evaluation_periods  = var.shards_active_evaluation_periods
   ok_actions          = [
     aws_sns_topic.alarms.arn
-  ]
+  ] 
   alarm_actions = [
     aws_sns_topic.alarms.arn
   ]
@@ -273,8 +273,8 @@ resource "aws_cloudwatch_metric_alarm" "thread_pool_write_queue" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "thread_pool_search_queue" {
-  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} ThreadpoolSearchQueue average >= 500"
-  alarm_description = "Alert when average ThreadpoolSearchQueue >= 500, 1 time within 1 minute"
+  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} ThreadpoolSearchQueue average >= ${var.thread_pool_search_queue_threshold}"
+  alarm_description = "Alert when average ThreadpoolSearchQueue >= ${var.thread_pool_search_queue_threshold}, ${var.thread_pool_search_queue_evaluation_periods} time within ${var.thread_pool_search_queue_period/60} minute"
   namespace         = "AWS/ES"
   dimensions        = {
     ClientId   = data.aws_caller_identity.current.account_id
@@ -283,9 +283,9 @@ resource "aws_cloudwatch_metric_alarm" "thread_pool_search_queue" {
   statistic           = "Average"
   metric_name         = "ThreadpoolSearchQueue"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = 500
-  period              = 60
-  evaluation_periods  = 1
+  threshold           = var.thread_pool_search_queue_threshold 
+  period              = var.thread_pool_search_queue_period
+  evaluation_periods  = var.thread_pool_search_queue_evaluation_periods
   ok_actions          = [
     aws_sns_topic.alarms.arn
   ]
@@ -295,8 +295,8 @@ resource "aws_cloudwatch_metric_alarm" "thread_pool_search_queue" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "thread_pool_search_queue_huge" {
-  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} ThreadpoolSearchQueue >= 5000"
-  alarm_description = "Alert when ThreadpoolSearchQueue >= 5000, 1 time within 1 minute"
+  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} ThreadpoolSearchQueue >= ${var.thread_pool_search_queue_huge_threshold}"
+  alarm_description = "Alert when average ThreadpoolSearchQueue >= ${var.thread_pool_search_queue_huge_threshold}, ${var.thread_pool_search_queue_huge_evaluation_periods} time within ${var.thread_pool_search_queue_huge_period/60} minute"
   namespace         = "AWS/ES"
   dimensions        = {
     ClientId   = data.aws_caller_identity.current.account_id
@@ -305,9 +305,9 @@ resource "aws_cloudwatch_metric_alarm" "thread_pool_search_queue_huge" {
   statistic           = "Maximum"
   metric_name         = "ThreadpoolSearchQueue"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = 5000
-  period              = 60
-  evaluation_periods  = 1
+  threshold           = var.thread_pool_search_queue_huge_threshold
+  period              = var.thread_pool_search_queue_huge_period
+  evaluation_periods  = var.thread_pool_search_queue_huge_evaluation_periods
   ok_actions          = [
     aws_sns_topic.alarms.arn
   ]
