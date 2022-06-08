@@ -9,3 +9,6 @@ The module has a single required input -- opensearch_domain, which must match th
 in the AWS account/region in use.
 
 Variable names for threshold and period overrides can be found in the code.
+
+The module outputs the name of the SNS queue defined as a Cloudwatch topic; configuration of SNS email or Datadog 
+subscriptions should be done in the calling module.
