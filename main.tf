@@ -163,7 +163,7 @@ resource "aws_cloudwatch_metric_alarm" "jvm_memory_pressure" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "master_cpu_utilization" {
-    count           = "${data.aws_elasticsearch_domain.target.cluster_config.dedicated_master_enabled}" = ? 1 : 0
+    count           = ("${data.aws_elasticsearch_domain.target.cluster_config.dedicated_master_count}" == 0) ? 1 : 0
   alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} MasterCPUUtilization >= ${var.master_cpu_utilization_threshold}"
   alarm_description = "Alert when MasterCPUUtilization >= ${var.master_cpu_utilization_threshold}, ${var.master_cpu_utilization_evaluation_periods} time within ${var.master_cpu_utilization_period/60} minutes"
   namespace         = "AWS/ES"
@@ -186,7 +186,7 @@ resource "aws_cloudwatch_metric_alarm" "master_cpu_utilization" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "master_jvm_memory_pressure" {
-  count             = "${data.aws_elasticsearch_domain.target.cluster_config.dedicated_master_enabled}" = ? 1 : 0
+  count             = "($){data.aws_elasticsearch_domain.target.cluster_config.dedicated_master_count}" == 0) ? 1 : 0
   alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} MasterJVMMemoryPressure >= 80"
   alarm_description = "Alert when MasterJVMMemoryPressure >= ${var.master_jvm_memory_pressure_threshold}, ${var.master_jvm_memory_pressure_evaluation_periods} time within ${var.master_jvm_memory_pressure_period/60} minutes"
   namespace         = "AWS/ES"
@@ -231,7 +231,7 @@ resource "aws_cloudwatch_metric_alarm" "shards_active" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "master_reachable_from_node" {
-  count             = "${data.aws_elasticsearch_domain.target.cluster_config.dedicated_master_enabled}" = ? 1 : 0
+  count             = ("${data.aws_elasticsearch_domain.target.cluster_config.dedicated_master_enabled}" == 0)? 1 : 0
   alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} MasterReachableFromNode < 1"
   alarm_description = "Alert when MasterReachableFromNode < 1, 1 time within 1 day"
   namespace         = "AWS/ES"
