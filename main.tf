@@ -162,52 +162,6 @@ resource "aws_cloudwatch_metric_alarm" "jvm_memory_pressure" {
   ]
 }
 
-resource "aws_cloudwatch_metric_alarm" "master_cpu_utilization" {
-    count           = ("${data.aws_elasticsearch_domain.target.cluster_config.dedicated_master_count}" == false) ? 0 : 1
-  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} MasterCPUUtilization >= ${var.master_cpu_utilization_threshold}"
-  alarm_description = "Alert when MasterCPUUtilization >= ${var.master_cpu_utilization_threshold}, ${var.master_cpu_utilization_evaluation_periods} time within ${var.master_cpu_utilization_period/60} minutes"
-  namespace         = "AWS/ES"
-  dimensions        = {
-    ClientId   = data.aws_caller_identity.current.account_id
-    DomainName = data.aws_elasticsearch_domain.target.domain_name
-  }
-  statistic           = "Maximum"
-  metric_name         = "MasterCPUUtilization"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = var.master_cpu_utilization_threshold
-  period              = var.master_cpu_utilization_period
-  evaluation_periods  = var.master_cpu_utilization_evaluation_periods
-  ok_actions          = [
-    aws_sns_topic.alarms.arn
-  ]
-  alarm_actions = [
-    aws_sns_topic.alarms.arn
-  ]
-}
-
-resource "aws_cloudwatch_metric_alarm" "master_jvm_memory_pressure" {
-  count             = "${data.aws_elasticsearch_domain.target.cluster_config.dedicated_master_count}" == false ? 0 : 1
-  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} MasterJVMMemoryPressure >= 80"
-  alarm_description = "Alert when MasterJVMMemoryPressure >= ${var.master_jvm_memory_pressure_threshold}, ${var.master_jvm_memory_pressure_evaluation_periods} time within ${var.master_jvm_memory_pressure_period/60} minutes"
-  namespace         = "AWS/ES"
-  dimensions        = {
-    ClientId   = data.aws_caller_identity.current.account_id
-    DomainName = data.aws_elasticsearch_domain.target.domain_name
-  }
-  statistic           = "Maximum"
-  metric_name         = "MasterJVMMemoryPressure"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  threshold           = var.master_jvm_memory_pressure_threshold
-  period              = var.master_jvm_memory_pressure_period
-  evaluation_periods  = var.master_jvm_memory_pressure_evaluation_periods
-  ok_actions          = [
-    aws_sns_topic.alarms.arn
-  ]
-  alarm_actions = [
-    aws_sns_topic.alarms.arn
-  ]
-}
-
 resource "aws_cloudwatch_metric_alarm" "shards_active" {
   alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} ShardsActive >= ${var.shards_active_threshold}"
   alarm_description = "Alert when ShardsActive >= ${var.shards_active_threshold}, ${var.shards_active_evaluation_periods} time within ${var.shards_active_period/60} minute"
@@ -225,29 +179,6 @@ resource "aws_cloudwatch_metric_alarm" "shards_active" {
   ok_actions          = [
     aws_sns_topic.alarms.arn
   ] 
-  alarm_actions = [
-    aws_sns_topic.alarms.arn
-  ]
-}
-
-resource "aws_cloudwatch_metric_alarm" "master_reachable_from_node" {
-  count             = ("${data.aws_elasticsearch_domain.target.cluster_config.dedicated_master_enabled}" == false) ? 0 : 1
-  alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} MasterReachableFromNode < 1"
-  alarm_description = "Alert when MasterReachableFromNode < 1, 1 time within 1 day"
-  namespace         = "AWS/ES"
-  dimensions        = {
-    ClientId   = data.aws_caller_identity.current.account_id
-    DomainName = data.aws_elasticsearch_domain.target.domain_name
-  }
-  statistic           = "Maximum"
-  metric_name         = "MasterReachableFromNode"
-  comparison_operator = "LessThanThreshold"
-  threshold           = 1
-  period              = 86400
-  evaluation_periods  = 1
-  ok_actions          = [
-    aws_sns_topic.alarms.arn
-  ]
   alarm_actions = [
     aws_sns_topic.alarms.arn
   ]
