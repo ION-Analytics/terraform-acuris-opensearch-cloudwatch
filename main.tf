@@ -186,7 +186,7 @@ resource "aws_cloudwatch_metric_alarm" "master_cpu_utilization" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "master_jvm_memory_pressure" {
-  count             = "($){data.aws_elasticsearch_domain.target.cluster_config.dedicated_master_count}" == false) ? 0 : 1
+  count             = "${data.aws_elasticsearch_domain.target.cluster_config.dedicated_master_count}" == false ? 0 : 1
   alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} MasterJVMMemoryPressure >= 80"
   alarm_description = "Alert when MasterJVMMemoryPressure >= ${var.master_jvm_memory_pressure_threshold}, ${var.master_jvm_memory_pressure_evaluation_periods} time within ${var.master_jvm_memory_pressure_period/60} minutes"
   namespace         = "AWS/ES"
