@@ -98,7 +98,7 @@ resource "aws_cloudwatch_metric_alarm" "cluster_index_writes_blocked" {
 
 resource "aws_cloudwatch_metric_alarm" "automated_snapshot_failure" {
   alarm_name        = "${data.aws_elasticsearch_domain.target.domain_name} AutomatedSnapshotFailure >= 1"
-  alarm_description = "Alert when AutomatedSnapshotFailure >=1, 1 time within 1 minute"
+  alarm_description = "Alert when AutomatedSnapshotFailure >=1, 5 consecutive times"
   namespace         = "AWS/ES"
   dimensions        = {
     ClientId   = data.aws_caller_identity.current.account_id
@@ -109,7 +109,7 @@ resource "aws_cloudwatch_metric_alarm" "automated_snapshot_failure" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   threshold           = 1
   period              = 60
-  evaluation_periods  = 1
+  evaluation_periods  = 5
   ok_actions          = [
     aws_sns_topic.alarms.arn
   ]
