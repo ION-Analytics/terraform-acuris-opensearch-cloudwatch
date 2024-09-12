@@ -109,7 +109,8 @@ resource "aws_cloudwatch_metric_alarm" "automated_snapshot_failure" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   threshold           = 1
   period              = 60
-  evaluation_periods  = 5
+  evaluation_periods  = 1
+  treat_missing_data = "ignore"
   ok_actions          = [
     aws_sns_topic.alarms.arn
   ]
